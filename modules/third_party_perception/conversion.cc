@@ -19,6 +19,9 @@
  */
 
 #include <vector>
+#include <iomanip>
+
+#include "modules/common/log.h"
 
 #include "modules/third_party_perception/conversion.h"
 #include "modules/third_party_perception/common/third_party_perception_gflags.h"
@@ -50,6 +53,9 @@ PerceptionObstacles MobileyeToPerceptionObstacles(
   // heading
   auto adc_quaternion = localization.pose().orientation();
   double adc_theta = GetAngleFromQuaternion(adc_quaternion);
+  // AINFO << std::fixed << std::setprecision(6)
+  //       << "localization: " << localization.header().timestamp_sec()
+  //       << " " << adc_theta;
   // velocity
   double adc_vx = localization.pose().linear_velocity().x();
   double adc_vy = localization.pose().linear_velocity().y();
@@ -63,6 +69,9 @@ PerceptionObstacles MobileyeToPerceptionObstacles(
     int mob_id = data_739.obstacle_id() + FLAGS_mobileye_id_offset;
     double mob_x = data_739.obstacle_pos_x();
     double mob_y = -data_739.obstacle_pos_y();
+    // AINFO << std::fixed << std::setprecision(6)
+    //       << "mobileye: " << mobileye.header().timestamp_sec()
+    //       << " " << mob_y;
     double mob_vel_x = data_739.obstacle_rel_vel_x();
     int mob_type = data_739.obstacle_type();
 
@@ -160,6 +169,9 @@ RadarObstacles DelphiToRadarObstacles(
   const auto adc_vel = localization.pose().linear_velocity();
   const auto adc_quaternion = localization.pose().orientation();
   const double adc_theta = GetAngleFromQuaternion(adc_quaternion);
+  // AINFO << std::fixed << std::setprecision(6)
+  //       << "localization: " << localization.header().timestamp_sec()
+  //       << " " << adc_theta;
 
   for (int index = 0; index < delphi_esr.esr_track01_500_size(); ++index) {
     const auto& data_500 = delphi_esr.esr_track01_500(index);
@@ -181,6 +193,11 @@ RadarObstacles DelphiToRadarObstacles(
 
     const double range = data_500.can_tx_track_range();
     const double angle = data_500.can_tx_track_angle() * PI / 180.0;
+    // if (index == 27) {
+    //   AINFO << std::fixed << std::setprecision(6)
+    //         << "delphi_esr: " << delphi_esr.header().timestamp_sec()
+    //         << " " << angle;
+    // }
     Point relative_pos_sl;
     relative_pos_sl.set_x(
         range * std::cos(angle) +

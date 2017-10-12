@@ -64,7 +64,7 @@ class ThirdPartyPerception : public apollo::common::ApolloApp {
   std::mutex third_party_perception_mutex_;
   apollo::perception::PerceptionObstacles mobileye_obstacles_;
   apollo::perception::PerceptionObstacles delphi_esr_obstacles_;
-  apollo::localization::LocalizationEstimate localization_;
+  std::queue<apollo::localization::LocalizationEstimate> localization_;
   RadarObstacles current_radar_obstacles_;
   RadarObstacles last_radar_obstacles_;
 };

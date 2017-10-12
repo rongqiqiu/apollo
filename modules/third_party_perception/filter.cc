@@ -60,13 +60,11 @@ bool IsPreserved(const RadarObstacle& radar_obstacle) {
   if (!radar_obstacle.movable()) {
     return false;
   }
-  // TODO(rongqiqiu): keep those with stable forward velocity
   double nearest_l =
       GetLateralDistanceToNearestLane(radar_obstacle.absolute_position());
   if (std::abs(nearest_l) > FLAGS_filter_y_distance) {
     return false;
   }
-  // TODO(rongqiqiu): create a new gflag for this
   if (radar_obstacle.count() < FLAGS_keep_delphi_esr_frames) {
     return false;
   }

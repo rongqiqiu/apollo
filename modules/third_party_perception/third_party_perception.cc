@@ -72,7 +72,8 @@ void ThirdPartyPerception::OnMobileye(const Mobileye& message) {
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   if (FLAGS_enable_mobileye) {
     mobileye_obstacles_ =
-        conversion::MobileyeToPerceptionObstacles(message, localization_);
+        conversion::MobileyeToPerceptionObstacles(message, localization_.front());
+    // AINFO << "Mobileye timestamp: " << std::fixed << std::setprecision(6) << message.header().timestamp_sec();
   }
 }
 
@@ -81,19 +82,24 @@ void ThirdPartyPerception::OnDelphiESR(const DelphiESR& message) {
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   last_radar_obstacles_.CopyFrom(current_radar_obstacles_);
   current_radar_obstacles_ = conversion::DelphiToRadarObstacles(
-      message, localization_, last_radar_obstacles_);
+      message, localization_.front(), last_radar_obstacles_);
   RadarObstacles filtered_radar_obstacles =
       filter::FilterRadarObstacles(current_radar_obstacles_);
   if (FLAGS_enable_delphi_esr) {
     delphi_esr_obstacles_ =
         conversion::RadarObstaclesToPerceptionObstacles(filtered_radar_obstacles);
+    // AINFO << "DelphiESR timestamp: " << std::fixed << std::setprecision(6) << message.header().timestamp_sec();
   }
 }
 
 void ThirdPartyPerception::OnLocalization(const LocalizationEstimate& message) {
   AINFO << "Received localization data: run localization callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
-  localization_.CopyFrom(message);
+  localization_.push(message);
+  if (localization_.size() > 30) {
+    localization_.pop();
+  }
+  // AINFO << "Localization timestamp: " << std::fixed << std::setprecision(6) << message.header().timestamp_sec();
 }
 
 void ThirdPartyPerception::OnTimer(const ros::TimerEvent&) {

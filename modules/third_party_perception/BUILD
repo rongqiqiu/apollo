@@ -47,7 +47,8 @@ cc_library(
         "//modules/perception/proto:perception_proto",
         "//modules/drivers/proto:sensor_proto",
         "//modules/localization/proto:localization_proto",
-        "//modules/third_party_perception/proto:third_party_perception_proto"
+        "//modules/third_party_perception/proto:third_party_perception_proto",
+        "//modules/common:log",
     ],
 )
 
